@@ -1,10 +1,10 @@
 card_length = 87;
 card_width = 55; 
-height = 12;
+height = 11;  // default 12
 
 head_thickness = 2.5;
 side_thickness = 2;
-base_thickness = 1.5;
+base_thickness = 1;
 
 finger_hole_dia = 15;
 top_rounding_dia = 8;
