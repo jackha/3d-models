@@ -1,5 +1,6 @@
 use <Write.scad>
 
+$fn=50;
 bone_dia = 35;
 height = 5;
 

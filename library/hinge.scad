@@ -6,16 +6,45 @@
 
 epsilon = 0.00001;  // Used to prevent manifold problems
 
+hinge_start = 0.40;  // default 0.25
+hinge_end = 1.25-hinge_start;
+
 module hingepair(x0_extra=0, x1_extra=0) {
+	union() {
+		translate([0,0,-x0_extra]) cylinder(h=hinge_start+x0_extra, r=0.5);
+		translate([0,0,hinge_start-epsilon]) cylinder(h=0.25, r1=0.5, r2=0.25);
+		translate([0,0,1.25-hinge_start+epsilon]) cylinder(h=0.25, r1=0.25, r2=0.5);
+		translate([0,0,1.5-hinge_start]) cylinder(h=hinge_start+x1_extra, r=0.5);
+	}
+}
+
+/*module hingepair(x0_extra=0, x1_extra=0) {
 	union() {
 		translate([0,0,-x0_extra]) cylinder(h=0.25+x0_extra, r=0.5);
 		translate([0,0,0.25-epsilon]) cylinder(h=0.25, r1=0.5, r2=0.25);
 		translate([0,0,1+epsilon]) cylinder(h=0.25, r1=0.25, r2=0.5);
 		translate([0,0,1.25]) cylinder(h=0.25+x1_extra, r=0.5);
 	}
-}
+}*/
 
 module hingecore(gap, x0_extra=0, x1_extra=0) {
+	union() {
+		difference() {
+			union() {
+				cylinder(h=1.5, r=0.5);
+				translate([0,0,hinge_start+gap])
+					cube(size=[0.5,1,1.5-2*hinge_start-gap-gap]);  // connect bottom
+				translate([0,-0.5,hinge_start+gap])
+					cube(size=[0.5,0.5,1.5-2*hinge_start-gap-gap]); // make bottom square
+			}
+			translate([0,0,hinge_start+gap-0.5]) cylinder(h=0.75, r1=1, r2=0.25);
+			translate([0,0,hinge_end-gap]) cylinder(h=0.75, r1=0.25, r2=1);
+		}
+		translate([0,0.5+gap,-x0_extra])
+			cube(size=[0.5,0.5-gap,1.5+x0_extra+x1_extra]);
+	}
+}
+/*module hingecore(gap, x0_extra=0, x1_extra=0) {
 	union() {
 		difference() {
 			union() {
@@ -23,9 +52,9 @@ module hingecore(gap, x0_extra=0, x1_extra=0) {
 				//translate([-0.5,0,0.25+gap])
 				//	cube(size=[1,1,1-gap-gap]);
 				translate([0,0,0.25+gap])
-					cube(size=[0.5,1,1-gap-gap]);
+					cube(size=[0.5,1,1-gap-gap]);  // connect bottom
 				translate([0,-0.5,0.25+gap])
-					cube(size=[0.5,0.5,1-gap-gap]);
+					cube(size=[0.5,0.5,1-gap-gap]); // make bottom square
 			}
 			translate([0,0,0.25+gap-0.5]) cylinder(h=0.75, r1=1, r2=0.25);
 			translate([0,0,1-gap]) cylinder(h=0.75, r1=0.25, r2=1);
@@ -35,8 +64,25 @@ module hingecore(gap, x0_extra=0, x1_extra=0) {
 		translate([0,0.5+gap,-x0_extra])
 			cube(size=[0.5,0.5-gap,1.5+x0_extra+x1_extra]);
 	}
+}*/
+
+module hingeedge(gap, x0_extra=0, x1_extra=0) {
+	union() {
+		hingepair(x0_extra, x1_extra);
+		translate([0,-1,-x0_extra])
+			cube(size=[0.5,0.5-gap,1.5+x0_extra+x1_extra]);
+		translate([0,-1,-x0_extra])
+			cube(size=[0.5,1,hinge_start+x0_extra]);
+		translate([0,-1,1.5-hinge_start])
+			cube(size=[0.5,1,hinge_start+x1_extra]);
+		translate([0,0,1.5-hinge_start])
+			cube(size=[0.5,0.5,hinge_start+x1_extra]);
+		translate([0,0,-x0_extra])
+			cube(size=[0.5,0.5,hinge_start+x0_extra]);
+	}
 }
 
+/*
 module hingeedge(gap, x0_extra=0, x1_extra=0) {
 	union() {
 		hingepair(x0_extra, x1_extra);
@@ -57,7 +103,7 @@ module hingeedge(gap, x0_extra=0, x1_extra=0) {
 		translate([0,0,-x0_extra])
 			cube(size=[0.5,0.5,0.25+x0_extra]);
 	}
-}
+} */
 
 module single_hinge(thick, realgap, x0_extra=0, x1_extra=0) {
 	hingeedge(realgap / thick, x0_extra, x1_extra);
@@ -147,3 +193,4 @@ single_hinge(hinge_dia/100, hinge_gap/100);
 // length will be dia*amount*1.25
 $fn = 30;
 hinge_core(1000/100, 80/100, amount=5);
+hinge_edge(1000/100, 80/100, amount=5);
